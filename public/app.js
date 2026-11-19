@@ -35,10 +35,11 @@ async function load() {
   try {
     const d = await api("GET", "/api/data");
     me = d.me; tasks = d.tasks; projects = d.projects; loaded = true;
+    $("app").hidden = false;
     $("meName").textContent = OWNER[me] || me;
     render();
   } catch (e) {
-    if (e.code !== "auth" && !loaded) $("main").innerHTML = `<div class="card"><div class="empty">The list could not load. Refresh the page to try again.</div></div>`;
+    if (e.code !== "auth" && !loaded) { $("app").hidden = false; $("main").innerHTML = `<div class="card"><div class="empty">The list could not load. Refresh the page to try again.</div></div>`; }
   }
 }
 function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => (t.hidden = true), 3500); }
