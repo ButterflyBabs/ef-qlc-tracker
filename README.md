@@ -7,6 +7,7 @@ One tracker with two sections: **Embraced:Fully** and **Quick Lift Cards LLC**. 
 - `api/` holds the Vercel functions: `data`, `tasks`, `projects`, `enter`, `signout`.
 - `lib/` holds the database, sign-in and input checks. `lib/schema.sql` creates the tables.
 - Data lives in a Neon Postgres database.
+- Documents (up to 25 MB each) are stored in a private Vercel Blob store. The browser uploads straight to it using a short-lived signed address from `api/upload-url`; `api/attachments` records the file; `api/file` serves it to signed-in people only. Deleting a task or project deletes its files.
 
 ## Deploying
 The repository is connected to Vercel. Pushing to `main` deploys to https://ef-qlc-tracker.vercel.app automatically.
@@ -19,6 +20,7 @@ To replace a link, change that person's token in the Vercel environment variable
 | Name | What it is |
 | --- | --- |
 | `DATABASE_URL` | Neon connection string (added by the Neon integration) |
+| `BLOB_READ_WRITE_TOKEN` | Private Blob store token (added by the Blob store connection) |
 | `ACCESS_TOKEN_BABS` | Babs's personal link token (long random string) |
 | `ACCESS_TOKEN_DAVID` | David's personal link token |
 | `SESSION_SECRET` | At least 32 random characters; signs the cookie |
