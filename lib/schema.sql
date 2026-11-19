@@ -25,6 +25,22 @@ create table if not exists tasks (
 );
 create index if not exists tasks_workspace on tasks (workspace);
 create index if not exists tasks_project on tasks (project_id);
+create table if not exists attachments (
+  id text primary key default gen_random_uuid()::text,
+  workspace text not null check (workspace in ('ef', 'qlc')),
+  project_id text references projects (id) on delete cascade,
+  task_id text references tasks (id) on delete cascade,
+  name text not null check (char_length(name) between 1 and 255),
+  pathname text not null unique,
+  size bigint not null check (size >= 0),
+  content_type text not null default 'application/octet-stream',
+  uploaded_by text,
+  created_at timestamptz not null default now(),
+  constraint attachments_one_owner check (project_id is null or task_id is null)
+);
+create index if not exists attachments_task on attachments (task_id);
+create index if not exists attachments_project on attachments (project_id);
+create index if not exists attachments_workspace on attachments (workspace);
 create table if not exists presence (
   person text primary key check (person in ('babs', 'david')),
   last_seen timestamptz not null default now()

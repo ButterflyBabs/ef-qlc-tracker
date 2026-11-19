@@ -9,7 +9,8 @@
     "migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.2.1"
+    "@neondatabase/serverless": "^1.2.1",
+    "@vercel/blob": "^2.9.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.17"

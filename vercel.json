@@ -2,7 +2,7 @@
   "rewrites": [{ "source": "/enter/:token", "destination": "/api/enter?token=:token" }],
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/((?!api/file).*)",
       "headers": [
         { "key": "Referrer-Policy", "value": "no-referrer" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
@@ -10,8 +10,17 @@
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+          "value": "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; img-src 'self' data:; connect-src 'self' https://vercel.com; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
         }
+      ]
+    },
+    {
+      "source": "/api/file",
+      "headers": [
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
       ]
     }
   ]

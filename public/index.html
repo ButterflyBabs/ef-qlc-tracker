@@ -22,6 +22,8 @@
       <button type="button" data-nav="all"><span class="ndot all"></span><span class="nt">Everything</span><span class="nc" id="cnt-all"></span></button>
       <button type="button" data-nav="ef"><span class="ndot ef"></span><span class="nt">Embraced:Fully</span><span class="nc" id="cnt-ef"></span></button>
       <button type="button" data-nav="qlc"><span class="ndot qlc"></span><span class="nt">Quick Lift Cards LLC</span><span class="nc" id="cnt-qlc"></span></button>
+      <div class="navsep" role="separator"></div>
+      <button type="button" data-nav="docs"><span class="ndot docs"></span><span class="nt">Documents</span><span class="nc" id="cnt-docs"></span></button>
     </nav>
     <div class="presence" id="presence" aria-live="polite"></div>
     <div class="who">
@@ -43,6 +45,7 @@
       </div>
     </header>
 
+<div id="tasksPage">
     <div class="bar-top">
       <div class="tabs" role="tablist" aria-label="View">
         <button role="tab" data-view="list" type="button">List</button>
@@ -74,6 +77,38 @@
     </form>
 
     <div id="main"><div class="empty">Loading tasks…</div></div>
+</div>
+
+<div id="docsPage" hidden>
+  <div class="docbar">
+    <input id="docSearch" type="search" placeholder="Search documents by name, project, task or person" aria-label="Search documents" autocomplete="off">
+    <select id="docWs" aria-label="Section"><option value="all">All sections</option><option value="ef">Embraced:Fully</option><option value="qlc">Quick Lift Cards LLC</option></select>
+    <select id="docProject" aria-label="Project"></select>
+    <select id="docType" aria-label="Type">
+      <option value="all">All types</option><option value="PDF">PDF</option><option value="Word">Word</option><option value="Excel">Excel</option><option value="Slides">Slides</option><option value="Image">Images</option><option value="Text">Text</option><option value="Other">Other</option>
+    </select>
+    <select id="docSort" aria-label="Sort by"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="name">Name A to Z</option><option value="big">Largest first</option></select>
+  </div>
+
+  <form class="card upl" id="upl" autocomplete="off">
+    <div class="fl">Add documents</div>
+    <div class="uplrow">
+      <label for="uWs">Section<select id="uWs"><option value="">Choose a section</option><option value="ef">Embraced:Fully</option><option value="qlc">Quick Lift Cards LLC</option></select></label>
+      <label for="uProject">Project<select id="uProject"></select></label>
+      <label for="uTask">Task<select id="uTask"></select></label>
+    </div>
+    <label class="drop" id="drop" for="uFiles">
+      <input type="file" id="uFiles" multiple>
+      <span><b>Choose files</b> or drop them here. Up to 25 MB each.</span>
+    </label>
+    <div id="uQueue" class="queue"></div>
+    <p class="err" id="uErr" hidden></p>
+    <div class="acts"><button class="btn" id="uGo" type="submit">Upload</button></div>
+  </form>
+
+  <div class="summary" id="docCount"></div>
+  <div id="docList"></div>
+</div>
   </main>
 </div>
 
@@ -118,6 +153,12 @@
       <label class="f" for="dDue">Deadline<input id="dDue" type="date"></label>
     </div>
     <label class="f" for="dNotes">Notes<textarea id="dNotes" placeholder="Goal, links, what is next, what is stuck"></textarea></label>
+    <div>
+      <div class="fl">Documents</div>
+      <div id="dDocList" class="doclist"></div>
+      <label class="filebtn" for="dFiles">+ Attach documents<input type="file" id="dFiles" multiple></label>
+      <p class="hint" id="dDocHint">Up to 25 MB each. They upload when you press Save.</p>
+    </div>
     <p class="err" id="dErr" hidden></p>
     <div class="acts">
       <button class="btn danger gap" id="dDel" type="button">Delete</button>
@@ -130,7 +171,7 @@
 <div class="scrim" id="pscrim" hidden>
   <div class="dlg" id="pdlg" role="dialog" aria-modal="true" aria-labelledby="pTitle">
     <h2 id="pTitle">Projects</h2>
-    <p class="hint">A project is a group of tasks. Pick a project on any task to file it there. Deleting a project keeps its tasks.</p>
+    <p class="hint">A project is a group of tasks. Pick a project on any task to file it there. Deleting a project keeps its tasks, but removes documents attached to the project itself.</p>
     <form class="padd" id="pAdd" autocomplete="off">
       <input id="pNew" class="plain" type="text" maxlength="100" placeholder="New project name" aria-label="New project name">
       <button class="btn" type="submit">Add project</button>

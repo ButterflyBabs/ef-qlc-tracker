@@ -2,6 +2,7 @@ import { guard } from '../lib/auth.js';
 import { query } from '../lib/db.js';
 import { PROJECT_COLS } from '../lib/cols.js';
 import { cleanProject } from '../lib/validate.js';
+import { deleteBlobs } from '../lib/files.js';
 
 // POST /api/projects         create
 // PATCH /api/projects?id=    rename
@@ -32,7 +33,10 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
+      // Tasks stay (with no project). Documents attached to the project itself are removed.
+      const files = await query('select pathname from attachments where project_id = $1', [id]);
       await query('delete from projects where id = $1', [id]);
+      await deleteBlobs(files.map((f) => f.pathname));
       return res.status(200).json({ ok: true });
     }
 

@@ -2,6 +2,7 @@ import { guard } from '../lib/auth.js';
 import { query } from '../lib/db.js';
 import { TASK_COLS } from '../lib/cols.js';
 import { cleanTask } from '../lib/validate.js';
+import { deleteBlobs } from '../lib/files.js';
 
 const COLUMNS = ['name', 'workspace', 'owner', 'status', 'start_date', 'due_date', 'notes', 'project_id'];
 
@@ -55,7 +56,9 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      await query('delete from tasks where id = $1', [id]);
+      const files = await query('select pathname from attachments where task_id = $1', [id]);
+      await query('delete from tasks where id = $1', [id]); // its document records go with it
+      await deleteBlobs(files.map((f) => f.pathname));
       return res.status(200).json({ ok: true });
     }
 
