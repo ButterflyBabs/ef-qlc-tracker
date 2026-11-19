@@ -8,6 +8,9 @@ One tracker with two sections: **Embraced:Fully** and **Quick Lift Cards LLC**. 
 - `lib/` holds the database, sign-in and input checks. `lib/schema.sql` creates the tables.
 - Data lives in a Neon Postgres database.
 
+## Deploying
+The repository is connected to Vercel. Pushing to `main` deploys to https://ef-qlc-tracker.vercel.app automatically.
+
 ## Signing in
 There are no passwords. Babs and David each have a personal link, `/enter/<token>`, that sets a cookie for 90 days.
 To replace a link, change that person's token in the Vercel environment variables and redeploy. To sign everyone out, change `SESSION_SECRET`.
