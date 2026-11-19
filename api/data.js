@@ -8,11 +8,13 @@ export default async function handler(req, res) {
   if (!me) return;
   if (req.method !== 'GET') return res.status(405).json({ error: 'Not allowed' });
   try {
-    const [projects, tasks] = await Promise.all([
+    const [projects, tasks, seen] = await Promise.all([
       query(`select ${PROJECT_COLS} from projects order by lower(name)`),
       query(`select ${TASK_COLS} from tasks order by created_at`),
+      query(`select person, extract(epoch from now() - last_seen)::int as ago from presence`),
     ]);
-    res.status(200).json({ me, projects, tasks });
+    const presence = Object.fromEntries(seen.map((r) => [r.person, r.ago]));
+    res.status(200).json({ me, projects, tasks, presence });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Could not load the list.' });

@@ -25,3 +25,7 @@ create table if not exists tasks (
 );
 create index if not exists tasks_workspace on tasks (workspace);
 create index if not exists tasks_project on tasks (project_id);
+create table if not exists presence (
+  person text primary key check (person in ('babs', 'david')),
+  last_seen timestamptz not null default now()
+);

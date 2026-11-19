@@ -13,7 +13,7 @@ const NEXT = { todo: "progress", progress: "done", done: "todo" };
 const RANK = { progress: 0, todo: 1, done: 2 };
 const PALETTE = 8;
 
-let me = null, tasks = [], projects = [], loaded = false;
+let me = null, tasks = [], projects = [], loaded = false, presence = {}, presenceAt = Date.now();
 let ws = "all", view = "list", who = "all", pFilter = "all", listGroup = "project";
 let doneOpen = false, showDoneGantt = false, zoom = "weeks", editId = null, dOwner = "none", dStatus = "todo", wantScroll = true;
 
@@ -35,6 +35,7 @@ async function load() {
   try {
     const d = await api("GET", "/api/data");
     me = d.me; tasks = d.tasks; projects = d.projects; loaded = true;
+    presence = d.presence || presence; presenceAt = Date.now();
     $("app").hidden = false;
     $("meName").textContent = OWNER[me] || me;
     render();
@@ -133,6 +134,7 @@ function renderChrome() {
   const open = (w) => tasks.filter((t) => t.status !== "done" && (w === "all" || t.workspace === w)).length;
   ["all", "ef", "qlc"].forEach((w) => { $("cnt-" + w).textContent = loaded ? open(w) : ""; });
   $("projBtn").hidden = ws === "all";
+  renderPresence();
 }
 function renderFilter() {
   const pb = $("pbar"); pb.hidden = ws === "all";
@@ -420,8 +422,38 @@ $("pList").addEventListener("click", async (e) => {
 
 addEventListener("keydown", (e) => { if (e.key === "Escape") { if (!$("scrim").hidden) closeTask(); else if (!$("pscrim").hidden) closeProjects(); } });
 
+/* ---------- who is here ---------- */
+// Each open, visible page tells the server "I'm here" every 25 seconds. Someone counts as here for 60 seconds after that.
+const HERE_SECONDS = 60;
+function agoText(sec) {
+  if (sec < 90) return "just now";
+  if (sec < 3600) return Math.round(sec / 60) + " min ago";
+  if (sec < 86400) { const h = Math.round(sec / 3600); return h + (h === 1 ? " hour ago" : " hours ago"); }
+  const d = new Date(Date.now() - sec * 1000);
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + " at " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
+function renderPresence() {
+  const el = $("presence");
+  if (!me) { el.innerHTML = ""; return; }
+  const other = me === "babs" ? "david" : "babs", ago = presence[other];
+  let on = false, line;
+  if (ago == null) line = `<span class="t">${OWNER[other]}<small>Has not opened the tracker yet</small></span>`;
+  else {
+    const a = ago + (Date.now() - presenceAt) / 1000;
+    on = a <= HERE_SECONDS;
+    line = `<span class="t">${OWNER[other]}<small>${on ? "Here now" : "Last here " + agoText(a)}</small></span>`;
+  }
+  el.innerHTML = `<div class="pr on"><span class="pdot2"></span><span class="t">You (${OWNER[me]})<small>Here now</small></span></div><div class="pr${on ? " on" : ""}"><span class="pdot2"></span>${line}</div>`;
+}
+async function ping() {
+  if (document.hidden || !me) return;
+  try { const d = await api("POST", "/api/presence"); presence = d.presence; presenceAt = Date.now(); renderPresence(); } catch (_) {}
+}
+setInterval(ping, 25000);
+setInterval(renderPresence, 15000);
+
 /* ---------- start ---------- */
 applyHash();
-load();
+load().then(ping);
 setInterval(() => { if (!document.hidden && !dragId && $("scrim").hidden && $("pscrim").hidden && document.activeElement.tagName !== "INPUT") load(); }, 20000);
-document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { load(); ping(); } });
